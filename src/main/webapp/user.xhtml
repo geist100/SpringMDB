@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<f:view contentType="text/html">
+
+	<h:head>
+		<title>Users</title>
+
+	</h:head>
+
+	<h:body>
+		<p:layout fullPage="true">
+			<p:growl id="growls" showDetail="true" />
+			<p:layoutUnit id="center" position="center" style="border: 0px;">
+				<p:layout style="min-width:400px; min-height:200px;">
+					<p:layoutUnit position="center">
+						<h:form id="addB">
+							<p:commandButton value="Yeni" id="addButton" style="margin-bottom:5px;"
+								oncomplete="PF('addUserDlgWW').show();" icon="ui-icon-plus"
+								actionListener="#{userController.onAddUser}" />
+						</h:form>
+						
+						<h:form id="dataTableForm">
+							<p:dataTable id="table" var="user"
+								value="#{userController.users}"
+								selection="#{userController.selectedUser}" rowKey="#{user._id}"
+								resizableColumns="true" liveResize="true"
+								style="min-width: 550px;">
+								<p:column headerText="ID" style="text-align: center;">
+									<h:outputText value="#{user._id}" />
+								</p:column>
+								<p:column headerText="İsim" resizable="true">
+									<h:outputText value="#{user.name}" />
+								</p:column>
+								<p:column headerText="Soyisim" resizable="true">
+									<h:outputText value="#{user.surname}" />
+								</p:column>
+								<p:column headerText="Telefon" resizable="true">
+									<h:outputText value="#{user.phone}" />
+								</p:column>
+								<p:column style="width:120px;text-align: center">
+
+									<p:commandButton id="editButton" widgetVar="editButtonWW"
+										update=":editUserForm" oncomplete="PF('editUserDlgWW').show()"
+										icon="ui-icon-pencil">
+										<f:setPropertyActionListener value="#{user}"
+											target="#{userController.selectedUser}" />
+									</p:commandButton>
+									<p:commandButton id="deleteButton" update=":userDeleteForm"
+										oncomplete="PF('confirmDlg').show()" icon="ui-icon-close">
+										<f:setPropertyActionListener value="#{user}"
+											target="#{userController.selectedUser}" />
+
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</h:form>
+
+						<p:dialog id="addUserDlg" header="Kullanıcı Ekle"
+							widgetVar="addUserDlgWW" resizable="false" appendTo="@(body)"
+							modal="true">
+							<h:form id="addUserForm">
+								<p:messages id="messages" autoUpdate="true" />
+								<h:panelGrid id="panel" columns="2" cellpadding="5"
+									style="margin-bottom: 10px;">
+
+									<p:outputLabel value="İsim:  *" />
+									<p:inputText value="#{userController.selectedUser.name}"
+										required="true"
+										requiredMessage="Lütfen isimi boş bırakmayınız" id="isim">
+									</p:inputText>
+
+
+									<p:outputLabel for="soyisim" value="Soyisim:" />
+									<p:inputText value="#{userController.selectedUser.surname}"
+										required="true" id="soyisim"
+										requiredMessage="Lütfen soyisimi boş bırakmayınız" />
+
+
+									<p:outputLabel value="Telefon:" />
+									<p:inputMask value="#{userController.selectedUser.phone}"
+										mask="05999999999" />
+								</h:panelGrid>
+								<p:captcha label="Captcha" required="true" rendered="true"
+									validatorMessage="Kod yanlış! Lütfen kontrol ederek tekrar giriniz"
+									requiredMessage="Lütfen doğrulama kodunu boş bırakmayınız!" />
+								<p:commandButton value="Kaydet" onsuccess="Recaptcha.reload();"
+									action="#{userController.addUser}"
+									update=":dataTableForm :addUserForm:messages :addUserForm:panel :growls"
+									icon="ui-icon-disk" />
+								<p:commandButton value="İptal"
+									onclick="PF('addUserDlgWW').hide()" />
+							</h:form>
+						</p:dialog>
+
+						<p:dialog id="editUserDlg" header="Düzenle" modal="true"
+							widgetVar="editUserDlgWW" resizable="false" appendTo="@(body)"
+							style="width: auto; height: auto">
+							<h:form id="editUserForm">
+							<p:messages id="messagesEdit" autoUpdate="true" />
+								<p:panelGrid id="editPanel" columns="2"
+									style="margin-bottom: 10px;">
+								
+									<h:outputText value="ID" />
+									<h:outputText value="#{userController.selectedUser._id}" />
+
+									<h:outputText value="İsim:" />
+									<p:inputText value="#{userController.selectedUser.name}"
+										required="true" requiredMessage="Lütfen ismi boş bırakmayınız" />
+
+									<h:outputText value="Soyisim:" />
+									<p:inputText value="#{userController.selectedUser.surname}"
+										required="true"
+										requiredMessage="Lütfen soyismi boş bırakmayınız" />
+
+									<h:outputText value="Telefon:" />
+									<p:inputMask value="#{userController.selectedUser.phone}"
+										mask="05999999999" />
+								</p:panelGrid>
+								<p:commandButton value="Kaydet"
+									action="#{userController.updateUser}"
+									update=":dataTableForm :editUserForm :editUserForm:messagesEdit" icon="ui-icon-disk" />
+								<p:commandButton value="İptal" onclick="PF('editUserDlgWW').hide()" />
+							</h:form>
+						</p:dialog>
+
+						<p:dialog widgetVar="confirmDlg" appendTo="@(body)">
+							<h:form id="userDeleteForm" style="text-align:center">
+								<p:outputLabel
+									value="#{userController.selectedUser.name} isimli kullanıcıyı silmek istediğinize emin misiniz ?" />
+								<br />
+								<br />
+								<p:commandButton value="Evet, Sil"
+									oncomplete="PF('confirmDlg').hide()"
+									action="#{userController.deleteUser}"
+									update=":dataTableForm :growls" />
+								<p:commandButton value="İptal" type="button"
+									onclick="PF('confirmDlg').hide()"
+									styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+							</h:form>
+						</p:dialog>
+
+						<p:ajaxStatus onstart="PF('statusDialog').show()" style=""
+							onsuccess="PF('statusDialog').hide()" />
+						<p:dialog widgetVar="statusDialog" draggable="false"
+							closable="false" resizable="false" showHeader="false">
+							<p:graphicImage name="/main/images/loading.gif" />
+						</p:dialog>
+					</p:layoutUnit>
+				</p:layout>
+			</p:layoutUnit>
+		</p:layout>
+
+	</h:body>
+
+</f:view>
+</html>
+
