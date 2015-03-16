@@ -20,7 +20,7 @@
 					<p:layoutUnit position="center">
 						<h:form id="addB">
 							<p:commandButton value="Yeni" id="addButton" style="margin-bottom:5px;"
-								oncomplete="PF('addUserDlgWW').show();" icon="ui-icon-plus"
+								oncomplete="PF('addUserDlgWW').show();" icon="ui-icon-plus" update=":addUserForm:panel"
 								actionListener="#{userController.onAddUser}" />
 						</h:form>
 						
